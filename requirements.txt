@@ -10,3 +10,4 @@ python-jose
 passlib[bcrypt]
 email-validator
 requests
+bs4
