@@ -7,3 +7,4 @@ psycopg2
 pyjwt
 alembic
 python-jose
+passlib[bcrypt]
