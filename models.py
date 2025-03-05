@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, Float, Boolean, ForeignKey, DateTime, DECIMAL
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from database import Base
@@ -47,3 +47,23 @@ class PriceHistory(Base):
     part_id = Column(Integer, ForeignKey("pc_parts.id"), nullable=False)
     price = Column(Float, nullable=False)
     date_checked = Column(DateTime, server_default=func.now())
+
+### ✅ Added the Component Model Below:
+class Component(Base):
+    __tablename__ = "components"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    category = Column(String, nullable=False)  # CPU, GPU, RAM, etc.
+    brand = Column(String)
+    model = Column(String)
+    price = Column(DECIMAL(10,2))
+    stock_status = Column(Boolean, default=True)
+    retailer = Column(String)
+    retailer_url = Column(String)
+    rating = Column(DECIMAL(3,2))
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+
+    # Establish relationship with price history
+    price_history = relationship("PriceHistory", backref="component", cascade="all, delete-orphan")
+

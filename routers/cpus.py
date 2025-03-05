@@ -1,19 +1,14 @@
-from fastapi import FastAPI, Depends
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from database import SessionLocal, engine
-from models import Component  # Ensure your models are imported
+from database import get_db
+from models import Component
 
-app = FastAPI()
+router = APIRouter(
+    prefix="/cpus",
+    tags=["CPUs"]
+)
 
-# Database Dependency
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-@app.get("/cpus/")
+@router.get("/")
 def get_cpus(db: Session = Depends(get_db)):
     cpus = db.query(Component).filter(Component.category == "CPU").all()
     return cpus

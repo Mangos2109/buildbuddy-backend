@@ -5,7 +5,8 @@ from routers.auth import router as auth_router
 from routers.builds import router as builds_router
 from routers.parts import router as parts_router
 from routers.price_tracking import router as price_tracking_router
-from routers import cpu  # Import the new router
+from routers.cpus import router as cpus_router
+
 
 
 # ✅ Initialize FastAPI app (This must be BEFORE registering routers)
@@ -16,6 +17,7 @@ app.include_router(auth_router)
 app.include_router(builds_router)
 app.include_router(parts_router)
 app.include_router(price_tracking_router, prefix="/prices")  # ✅ Corrected placement
+app.include_router(cpus_router, prefix="/cpus")
 
 # ✅ Create database tables
 Base.metadata.create_all(bind=engine)
