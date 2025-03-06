@@ -13,6 +13,7 @@ class User(Base):
 
     builds = relationship("Build", back_populates="owner")
 
+
 class Build(Base):
     __tablename__ = "builds"
 
@@ -25,9 +26,10 @@ class Build(Base):
     storage = Column(String, nullable=False)
     psu = Column(String, nullable=False)
     total_price = Column(Float, nullable=False)
-    user_id = Column(Integer, ForeignKey("users.id"))
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
 
     owner = relationship("User", back_populates="builds")
+
 
 class PCPart(Base):
     __tablename__ = "pc_parts"
@@ -40,15 +42,7 @@ class PCPart(Base):
     url = Column(String, nullable=False)
     last_updated = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
-class PriceHistory(Base):
-    __tablename__ = "price_history"
 
-    id = Column(Integer, primary_key=True, index=True)
-    part_id = Column(Integer, ForeignKey("pc_parts.id"), nullable=False)
-    price = Column(Float, nullable=False)
-    date_checked = Column(DateTime, server_default=func.now())
-
-### ✅ Added the Component Model Below:
 class Component(Base):
     __tablename__ = "components"
 
@@ -64,6 +58,17 @@ class Component(Base):
     rating = Column(DECIMAL(3,2))
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
-    # Establish relationship with price history
-    price_history = relationship("PriceHistory", backref="component", cascade="all, delete-orphan")
+    # ✅ Establish a relationship with PriceHistory
+    price_history = relationship("PriceHistory", back_populates="component", cascade="all, delete-orphan")
 
+
+class PriceHistory(Base):
+    __tablename__ = "price_history"
+
+    id = Column(Integer, primary_key=True, index=True)
+    component_id = Column(Integer, ForeignKey("components.id", ondelete="CASCADE"), nullable=False)  # ✅ Fixed FK reference
+    price = Column(Float, nullable=False)
+    date_checked = Column(DateTime, server_default=func.now())
+
+    # ✅ Relationship with Component
+    component = relationship("Component", back_populates="price_history")

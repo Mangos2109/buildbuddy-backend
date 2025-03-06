@@ -4,10 +4,12 @@ from database import engine, Base
 from routers.auth import router as auth_router
 from routers.builds import router as builds_router
 from routers.parts import router as parts_router
+from pydantic import BaseModel
 from routers.price_tracking import router as price_tracking_router
 from routers.cpus import router as cpus_router
-
-
+from typing import List
+from databases import Database
+from routers.components import router as components_router  # ✅ Ensure this is correct
 
 # ✅ Initialize FastAPI app (This must be BEFORE registering routers)
 app = FastAPI(title="BuildBuddy API", description="API for BuildBuddy Custom PC Builder", version="1.0")
@@ -18,6 +20,8 @@ app.include_router(builds_router)
 app.include_router(parts_router)
 app.include_router(price_tracking_router, prefix="/prices")  # ✅ Corrected placement
 app.include_router(cpus_router, prefix="/cpus")
+app.include_router(parts_router, prefix="/parts")
+app.include_router(components_router, prefix="/components")  # ✅ Ensure this is included
 
 # ✅ Create database tables
 Base.metadata.create_all(bind=engine)
@@ -40,3 +44,16 @@ def status_check():
 @app.get("/")
 def home():
     return {"message": "Welcome to BuildBuddy!"}
+
+@app.get("/api/components")
+async def get_components():
+    query = "SELECT * FROM components WHERE category='CPU'"
+    return await database.fetch_all(query)
+
+@app.on_event("startup")
+async def startup():
+    await database.connect()
+
+@app.on_event("shutdown")
+async def shutdown():
+    await database.disconnect()
